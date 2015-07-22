@@ -1,0 +1,14 @@
+[
+//standart
+"amenity", 
+"tourism", 
+"shop",
+"highway",
+
+//custom
+"wheelchair",
+"ramp",
+"incline",
+"handrail",
+"kerb",
+]
