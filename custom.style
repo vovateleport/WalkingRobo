@@ -1,0 +1,10 @@
+# OsmType  Tag          DataType     Flags
+node,way   wheelchair   text         linear
+node,way   ramp         text         linear
+node,way   incline      text         linear
+node,way   handrail     text         linear
+node,way   kerb         text         linear
+
+
+#delete default
+node,way   generator:source      text    delete
