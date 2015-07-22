@@ -7,4 +7,4 @@ node,way   kerb         text         linear
 
 
 #delete default
-node,way   generator:source      text    delete
+node,way   generator:source      text    nocolumn
