@@ -1,0 +1,22 @@
+{
+  "name": "walkingrobo",
+  "version": "1.0.0",
+  "description": "WalkingRobo",
+  "main": "merge-styles.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VladimirKorablev/WalkingRobo.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VladimirKorablev/WalkingRobo/issues"
+  },
+  "homepage": "https://github.com/VladimirKorablev/WalkingRobo#readme",
+  "dependencies": {
+    "lodash": "^3.10.0"
+  }
+}
