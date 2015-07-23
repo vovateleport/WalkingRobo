@@ -4,6 +4,27 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('lodash');
 
+//entry point
+function work(){
+	var def = _process ('default');
+	var custom = _process ('custom');
+
+	var result = {};
+	def.forEach(function(e){result[e.tag]=e;});
+	custom.forEach(function(e){result[e.tag]=e;});
+
+	var tags = _.keys(result).sort();
+
+	var rv=['#OsmType\tTag\tDataType\tFlags\t#source'];
+	tags.forEach(function(tag){
+		let obj = result[tag];
+		rv.push(`${obj.osmType}\t${obj.tag}\t${obj.dataType}\t${obj.flags}\t#${obj.source}`);
+	});
+
+	let fileOutput = path.resolve(_getOutput(),'load.styles');
+	fs.writeFileSync(fileOutput, rv.join('\r\n'),'utf8');
+}
+
 function _parse(file){
 	var re = /\r\n|\r|\n/;
 	var ar = file.split(re);
@@ -42,28 +63,13 @@ function _process(styleName){
 		.map(function(obj){obj.source=styleName; return obj;});
 }
 
-var def = _process ('default');
-var custom = _process ('custom');
+function _getOutput(){
+	var args = process.argv.slice(2);
+	if (args.length==0)
+		return path.resolve(__dirname, 'build');
+	else
+		return path.resolve(args[0]);
+}
 
-var result = {};
-
-def.forEach(function(e){
-	result[e.tag]=e;
-});
-
-custom.forEach(function(e){
-	result[e.tag]=e;
-});
-
-var tags = _.keys(result).sort();
-
-//var fd=fs.openSync(path.join(__dirname,'build','load.styles'),'w');
-var rv=['#OsmType\tTag\tDataType\tFlags\t#source'];
-tags.forEach(function(tag){
-	let obj = result[tag];
-	rv.push(`${obj.osmType}\t${obj.tag}\t${obj.dataType}\t${obj.flags}\t#${obj.source}`);
-});
-
-let fileOutput = path.resolve(__dirname, 'build','load.styles');
-fs.writeFileSync(fileOutput, rv.join('\r\n'),'utf8');
+work();
 
