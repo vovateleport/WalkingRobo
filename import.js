@@ -28,7 +28,7 @@ sh.cd(sh.pwd());
 sh.cd('..');
 var pwd1 = sh.pwd();
 console.log('pwd2:',sh.pwd());
-console.log('_tt',pwd1===baseDir);
+console.log('_tt', JSON.stringify([pwd1,baseDir,pwd1==baseDir,pwd1===baseDir]));
 sh.cd(baseDir);
 sh.mkdir('-p','build');
 sh.cd('build');
