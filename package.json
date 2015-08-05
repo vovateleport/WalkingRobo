@@ -18,6 +18,8 @@
   "homepage": "https://github.com/VladimirKorablev/WalkingRobo#readme",
   "dependencies": {
     "express": "^4.13.1",
-    "lodash": "^3.10.0"
+    "hjson": "^1.7.3",
+    "lodash": "^3.10.0",
+    "shelljs": "^0.5.1"
   }
 }
