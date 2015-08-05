@@ -3,10 +3,15 @@ var hjson = require('hjson');
 var fs = require('fs');
 var path = require('path');
 
-var fileConfig=fs.readFileSync(path.resolve(__dirname,'test.hjson'),{encoding:'utf8'});
+var args = process.argv.slice(2);
+var configPath = args.length>0?args[0]:'test.hjson';
+
+var fileConfig=fs.readFileSync(path.resolve(__dirname,configPath),{encoding:'utf8'});
 var c = hjson.parse(fileConfig);
 
 var baseDir = c.baseDir||__dirname;
+console.log('baseDir:', baseDir);
+
 var styleFileFullPath = path.resolve(baseDir, c.styles);
 
 var t = c.tasks[0];
