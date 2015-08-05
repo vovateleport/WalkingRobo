@@ -1,4 +1,5 @@
 var sh = require('shelljs');
+sh.config.fatal = true;
 var hjson = require('hjson');
 var fs = require('fs');
 var path = require('path');
