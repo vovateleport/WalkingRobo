@@ -7,8 +7,9 @@ var path = require('path');
 var args = process.argv.slice(2);
 var configPath = args.length>0?args[0]:'test.hjson';
 
-var fileConfig=fs.readFileSync(path.resolve(__dirname,configPath),{encoding:'utf8'});
-var c = hjson.parse(fileConfig);
+//var fileConfig=fs.readFileSync(path.resolve(__dirname,configPath),{encoding:'utf8'});
+//var c = hjson.parse(fileConfig);
+var c = require("./testc");
 
 var baseDir = c.baseDir||__dirname;
 console.log('baseDir:', baseDir);

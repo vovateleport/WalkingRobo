@@ -1,5 +1,5 @@
 {
-  baseDir: '/home/robosm/data',
+  baseDir: "/home/robosm/data",
   stylesFile: 'load.styles',
   tasks: [
     {
