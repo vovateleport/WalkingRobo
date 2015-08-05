@@ -25,7 +25,10 @@ cmd.to_sql = `osm2pgsql -U gis --database ${t.name} -W ${t.name}.osm.pbf -P 5432
 
 console.log('pwd:',sh.pwd());
 sh.cd(sh.pwd());
-
+sh.cd('..');
+var pwd1 = sh.pwd();
+console.log('pwd2:',sh.pwd());
+console.log('_tt',pwd1===baseDir);
 sh.cd(baseDir);
 sh.mkdir('-p','build');
 sh.cd('build');
