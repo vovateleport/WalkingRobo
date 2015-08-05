@@ -1,4 +1,4 @@
-export default {
+export default var c = {
 	baseDir: '/home/robosm/data',
 	stylesFile: 'load.styles',
 	tasks: [
