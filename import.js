@@ -22,7 +22,7 @@ console.log('task0:', JSON.stringify(t,null,2));
 var cmd = {};
 cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file}`;
 cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=${t.bbox.top} left=${t.bbox.left} bottom=${t.bbox.bottom} right=${t.bbox.rigth} completeWays=yes --lp --write-pbf ${t.name}.osm.pbf`;
-cmd.to_sql = `osm2pgsql --database ${t.name} -W ${t.name}.osm.pbf -P 5432 -H localhost --cache-strategy sparse -C 500 --style ${styleFileFullPath}`;
+cmd.to_sql = `osm2pgsql --database ${t.name} ${t.name}.osm.pbf -P 5432 -H localhost --cache-strategy sparse -C 500 --style ${styleFileFullPath}`;
 
 console.log('pwd:',sh.pwd());
 sh.cd(sh.pwd());
