@@ -15,6 +15,7 @@ console.log('baseDir:', baseDir);
 var styleFileFullPath = path.resolve(baseDir, c.stylesFile);
 
 var t = c.tasks[0];
+console.log('task0:', JSON.stringify(t,null,2));
 
 var cmd = {};
 cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file}`;
