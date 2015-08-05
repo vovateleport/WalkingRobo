@@ -12,7 +12,7 @@ var c = hjson.parse(fileConfig);
 var baseDir = c.baseDir||__dirname;
 console.log('baseDir:', baseDir);
 
-var styleFileFullPath = path.resolve(baseDir, c.styles);
+var styleFileFullPath = path.resolve(baseDir, c.stylesFile);
 
 var t = c.tasks[0];
 
