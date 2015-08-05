@@ -24,10 +24,11 @@ cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=
 cmd.to_sql = `osm2pgsql -U gis --database ${t.name} -W ${t.name}.osm.pbf -P 5432 -H localhost --cache-strategy sparse -C 500 --style ${styleFileFullPath}`;
 
 console.log('pwd:',sh.pwd());
+sh.echo('$USER');
 sh.cd(baseDir);
-sh.makedir('-p','build');
+sh.mkdir('-p','build');
 sh.cd('build');
-sh.makedir('-p', t.name);
+sh.mkdir('-p', t.name);
 sh.cd(t.name);
 sh.exec(cmd.download);
 sh.exec(cmd.osmosis);
