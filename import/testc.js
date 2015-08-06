@@ -1,5 +1,6 @@
 module.exports = {
 	baseDir: '/home/robosm/data',
+	stylesFile2: 'userStyles.json',
 	stylesFile: 'load.styles',
 	tasks: [
 		{

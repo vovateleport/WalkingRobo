@@ -10,7 +10,6 @@ var c = require("./testc");
 var _result = {start:Date.now(), log:[]};
 var _cmd = {};
 var _resultFile = '';
-var _logFile = '';
 
 runGenerator(function*(){
 	yield new Promise(function(ok){
@@ -55,9 +54,8 @@ function prepare() {
 
 	var t = c.tasks[0];
 	_resultFile = path.resolve(baseDir,'build',t.name,'import.result');
-	_logFile = path.resolve(baseDir,'build',t.name,'output.log');
 
-	_cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file} -o ${_logFile}`;
+	_cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file}`;
 	_cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=${t.bbox.top} left=${t.bbox.left} bottom=${t.bbox.bottom} right=${t.bbox.rigth} completeWays=yes --lp --write-pbf ${t.name}.osm.pbf`;
 	_cmd.to_sql = `osm2pgsql -d ${t.name} ${t.name}.osm.pbf -P 5432 -U robosm --cache-strategy sparse -C 500 --style ${styleFileFullPath}`;
 

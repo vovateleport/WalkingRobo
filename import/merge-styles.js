@@ -3,6 +3,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('lodash');
+var cfg = require('./testc');
 
 //entry point
 function work(){
@@ -23,6 +24,68 @@ function work(){
 
 	let fileOutput = path.resolve(_getOutput(),'load.styles');
 	fs.writeFileSync(fileOutput, rv.join('\r\n'),'utf8');
+}
+
+//entry point
+function work2(){
+	var def = _process ('default');
+	var custom = _processUser();
+
+	var result = {};
+	def.forEach(function(e){result[e.tag]=e;});
+
+	custom.add.forEach(function(tag){result[tag]={
+		osmType:'node,way',
+		tag:tag,
+		dataType:'text',
+		flags:'linear',
+		source:'custom'
+	}});
+
+	custom.remove.forEach(function(tag){
+		let c=result[tag];
+		if (c) {
+			c.skip = true;
+			c.source = 'custom';
+		}
+	});
+
+	var tags = _.keys(result).sort();
+
+	var rv=['#OsmType\tTag\tDataType\tFlags\t#source'];
+	tags.forEach(function(tag){
+		let obj = result[tag];
+		rv.push((obj.skip?'#':'') + `${obj.osmType}\t${obj.tag}\t${obj.dataType}\t${obj.flags}\t#${obj.source}`);
+	});
+
+	let fileOutput = path.resolve(_getOutput(),'load.styles');
+	fs.writeFileSync(fileOutput, rv.join('\r\n'),'utf8');
+}
+
+function _processUser(){
+	var file = path.resolve(cfg.baseDir,cfg.stylesFile2);
+	let data= null;
+	try{
+		data= JSON.parse(fs.readFileSync(file, {encoding:'utf8'} ));
+	}
+	catch(err){
+		data = {};
+	}
+
+	return {
+		add : _parseUser(data.addFields||''),
+		remove: _parseUser(data.removeFields||'')
+	};
+}
+
+function _parseUser(str){
+	let re = /(\S+)/g;
+	let rv = [];
+	let m;
+	while (m = re.exec(str)) {
+		rv.push(m[0]);
+	}
+	return rv;
 }
 
 function _parse(file){
@@ -66,10 +129,10 @@ function _process(styleName){
 function _getOutput(){
 	var args = process.argv.slice(2);
 	if (args.length==0)
-		return path.resolve(__dirname, 'build');
+		return path.resolve(cfg.baseDir||__dirname, 'build');
 	else
 		return path.resolve(args[0]);
 }
 
-work();
+work2();
 
