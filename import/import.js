@@ -32,7 +32,7 @@ function writeResult(err){
 	if (err)
 		_result.error = JSON.stringify(err);
 
-	fs.writeFileSync('import.result',JSON.stringify(result),{encoding='utf8'});
+	fs.writeFileSync('import.result',JSON.stringify(result),{encoding:'utf8'});
 }
 
 function prepare() {
