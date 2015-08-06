@@ -14,12 +14,10 @@ var configPath = args.length>0?args[0]:'test.hjson';
 var c = require("./testc");
 
 var baseDir = c.baseDir||__dirname;
-console.log('baseDir:', baseDir);
 
 var styleFileFullPath = path.resolve(baseDir, c.stylesFile);
 
 var t = c.tasks[0];
-console.log('task0:', JSON.stringify(t,null,2));
 
 var cmd = {};
 cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file}`;
@@ -50,7 +48,7 @@ function execPromise(command){
 			console.log('Exit code:', code);
 			console.log('Program output:', output);
 			ok();
-		});
+		}).output.to('import.log');
 	});
 }
 
