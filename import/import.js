@@ -9,6 +9,7 @@ var c = require("./testc");
 
 var _result = {start:Date.now()};
 var _cmd = {};
+var _resultFile = '';
 
 runGenerator(function*(){
 	yield new Promise(function(ok){
@@ -32,7 +33,8 @@ function writeResult(err){
 	if (err)
 		_result.error = JSON.stringify(err);
 
-	fs.writeFileSync('import.result',JSON.stringify(result),{encoding:'utf8'});
+	fs.writeFileSync(_resultFile,JSON.stringify(result),{encoding:'utf8'});
+	console.log('Finished! Result in ',_resultFile);
 }
 
 function prepare() {
@@ -43,6 +45,8 @@ function prepare() {
 	var styleFileFullPath = path.resolve(baseDir, c.stylesFile);
 
 	var t = c.tasks[0];
+	_resultFile = path.resolve(baseDir,'build','import.result');
+
 	_cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file}`;
 	_cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=${t.bbox.top} left=${t.bbox.left} bottom=${t.bbox.bottom} right=${t.bbox.rigth} completeWays=yes --lp --write-pbf ${t.name}.osm.pbf`;
 	_cmd.to_sql = `osm2pgsql -d ${t.name} ${t.name}.osm.pbf -P 5432 -U robosm --cache-strategy sparse -C 500 --style ${styleFileFullPath}`;
