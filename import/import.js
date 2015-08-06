@@ -38,14 +38,10 @@ sh.cd('build');
 sh.mkdir('-p', t.name);
 sh.cd(t.name);
 
-Promise.all([
-	execPromise(cmd.download),
-	execPromise(cmd.osmosis),
-	execPromise(cmd.to_sql)
-]).then(function(data){
-	console.log('success!');
-}).catch(function(err){
-	console.log('fail.');
+runGenerator(function*(){
+	yield execPromise(cmd.download);
+	yield execPromise(cmd.osmosis);
+	yield execPromise(cmd.to_sql);
 });
 
 function execPromise(command){
@@ -53,7 +49,31 @@ function execPromise(command){
 		sh.exec(command, function(code, output) {
 			console.log('Exit code:', code);
 			console.log('Program output:', output);
+			ok();
 		});
-		ok();
 	});
+}
+
+function runGenerator(g) {
+	var it = g(), ret;
+
+	// asynchronously iterate over generator
+	(function iterate(val){
+		ret = it.next( val );
+
+		if (!ret.done) {
+			// poor man's "is it a promise?" test
+			if ("then" in ret.value) {
+				// wait on the promise
+				ret.value.then( iterate );
+			}
+			// immediate value: just send right back in
+			else {
+				// avoid synchronous recursion
+				setTimeout( function(){
+					iterate( ret.value );
+				}, 0 );
+			}
+		}
+	})();
 }
