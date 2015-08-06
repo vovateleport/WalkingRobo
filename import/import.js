@@ -14,6 +14,7 @@ var _resultFile = '';
 runGenerator(function*(){
 	yield new Promise(function(ok){
 		prepare();
+		console.log('Prepare OK');
 		ok();
 	});
 	yield execPromise(_cmd.download);
@@ -27,13 +28,21 @@ runGenerator(function*(){
 });
 
 function writeResult(err){
+	console.log('Finishing');
+
 	_result.finish = Date.now();
 	_result.duration = _result.finish - _result.start;
 	_result.result =  !err ? 'success':'fail';
 	if (err)
 		_result.error = JSON.stringify(err);
 
-	fs.writeFileSync(_resultFile,JSON.stringify(result),{encoding:'utf8'});
+
+	try {
+		fs.writeFileSync(_resultFile, JSON.stringify(_result), {encoding: 'utf8'});
+	}
+	catch(err0){
+		console.log('error',JSON.stringify(err0));
+	}
 	console.log('Finished! Result in ',_resultFile);
 }
 
