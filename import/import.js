@@ -37,7 +37,6 @@ function writeResult(err){
 	if (err)
 		_result.error = JSON.stringify(err);
 
-
 	try {
 		fs.writeFileSync(_resultFile, JSON.stringify(_result), {encoding: 'utf8'});
 	}
@@ -59,8 +58,8 @@ function prepare() {
 	_logFile = path.resolve(baseDir,'build',t.name,'output.log');
 
 	_cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file} -o ${_logFile}`;
-	_cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=${t.bbox.top} left=${t.bbox.left} bottom=${t.bbox.bottom} right=${t.bbox.rigth} completeWays=yes --lp --write-pbf ${t.name}.osm.pbf >> ${_logFile}`;
-	_cmd.to_sql = `osm2pgsql -d ${t.name} ${t.name}.osm.pbf -P 5432 -U robosm --cache-strategy sparse -C 500 --style ${styleFileFullPath} >> ${_logFile}`;
+	_cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=${t.bbox.top} left=${t.bbox.left} bottom=${t.bbox.bottom} right=${t.bbox.rigth} completeWays=yes --lp --write-pbf ${t.name}.osm.pbf`;
+	_cmd.to_sql = `osm2pgsql -d ${t.name} ${t.name}.osm.pbf -P 5432 -U robosm --cache-strategy sparse -C 500 --style ${styleFileFullPath}`;
 
 	sh.cd(baseDir);
 	sh.mkdir('-p', `build`);
@@ -73,12 +72,10 @@ function prepare() {
 
 function execPromise(command){
 	return new Promise(function(ok,fail){
-		let child = sh.exec(command, function(code, output) {
-			console.log('Exit code:', code);
-			console.log('Program output:', output);
+		sh.exec(command, function(code, output) {
+			_result.log.push( {command: command, exitCode:code, output:output});
 			ok();
 		});
-		child.stdout.on('data', function(data){_result.log.push(data)});
 	});
 }
 
