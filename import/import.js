@@ -7,7 +7,8 @@ var fs = require('fs');
 var path = require('path');
 var c = require("./testc");
 
-var cmd = {};
+var _result = {start:Date.now()};
+var _cmd = {};
 
 runGenerator(function*(){
 	yield new Promise(function(ok){
@@ -18,11 +19,21 @@ runGenerator(function*(){
 	yield execPromise(cmd.osmosis);
 	yield execPromise(cmd.to_sql);
 	yield new Promise(function(ok){
-		console.log('finish');
+		writeResult();
 		ok();
 	});
 
 });
+
+function writeResult(err){
+	_result.finish = Date.now();
+	_result.duration = _result.finish - _result.start;
+	_result.result =  !err ? 'success':'fail';
+	if (err)
+		_result.error = JSON.stringify(err);
+
+	fs.writeFileSync('import.result',JSON.stringify(result),{encoding='utf8'});
+}
 
 function prepare() {
 	var args = process.argv.slice(2);
@@ -66,6 +77,7 @@ function runGenerator(g) {
 				ret.value
 					.then(iterate)
 					.catch(function(err){
+						writeResult(err);
 						throw err;
 					});
 			}
