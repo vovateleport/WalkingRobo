@@ -54,7 +54,7 @@ function prepare() {
 	var styleFileFullPath = path.resolve(baseDir, c.stylesFile);
 
 	var t = c.tasks[0];
-	_resultFile = path.resolve(baseDir,'build','import.result');
+	_resultFile = path.resolve(baseDir,'build',t.name,'import.result');
 
 	_cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file}`;
 	_cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=${t.bbox.top} left=${t.bbox.left} bottom=${t.bbox.bottom} right=${t.bbox.rigth} completeWays=yes --lp --write-pbf ${t.name}.osm.pbf`;
