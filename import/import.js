@@ -10,6 +10,7 @@ var c = require("./testc");
 var _result = {start:Date.now()};
 var _cmd = {};
 var _resultFile = '';
+var _logFile = '';
 
 runGenerator(function*(){
 	yield new Promise(function(ok){
@@ -55,6 +56,7 @@ function prepare() {
 
 	var t = c.tasks[0];
 	_resultFile = path.resolve(baseDir,'build',t.name,'import.result');
+	_logFile = path.resolve(baseDir,'build',t.name,'output.log');
 
 	_cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file}`;
 	_cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=${t.bbox.top} left=${t.bbox.left} bottom=${t.bbox.bottom} right=${t.bbox.rigth} completeWays=yes --lp --write-pbf ${t.name}.osm.pbf`;
@@ -73,7 +75,7 @@ function execPromise(command){
 			console.log('Exit code:', code);
 			console.log('Program output:', output);
 			ok();
-		});
+		}).to(_logFile);
 	});
 }
 
