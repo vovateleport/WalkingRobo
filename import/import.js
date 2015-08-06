@@ -7,7 +7,7 @@ var fs = require('fs');
 var path = require('path');
 var c = require("./testc");
 
-var _result = {start:Date.now()};
+var _result = {start:Date.now(), log:[]};
 var _cmd = {};
 var _resultFile = '';
 var _logFile = '';
@@ -71,11 +71,12 @@ function prepare() {
 
 function execPromise(command){
 	return new Promise(function(ok,fail){
-		sh.exec(command, function(code, output) {
+		let child = sh.exec(command, function(code, output) {
 			console.log('Exit code:', code);
 			console.log('Program output:', output);
 			ok();
-		}).to(_logFile);
+		});
+		child.stdout.on('data', function(data){_result.log.push(data)});
 	});
 }
 
