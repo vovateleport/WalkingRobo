@@ -1,3 +1,5 @@
+"use strict";
+
 var sh = require('shelljs');
 sh.config.fatal = true;
 var hjson = require('hjson');
@@ -35,7 +37,23 @@ sh.mkdir('-p','build');
 sh.cd('build');
 sh.mkdir('-p', t.name);
 sh.cd(t.name);
-sh.exec(cmd.download);
-sh.exec(cmd.osmosis);
-sh.exec(cmd.to_sql);
 
+Promise.all([
+	execPromise(cmd.download),
+	execPromise(cmd.osmosis),
+	execPromise(cmd.to_sql)
+]).then(function(data){
+	console.log('success!');
+}).catch(function(err){
+	console.log('fail.');
+});
+
+function execPromise(command){
+	return new Promise(function(ok,fail){
+		sh.exec(command, function(code, output) {
+			console.log('Exit code:', code);
+			console.log('Program output:', output);
+		});
+		ok();
+	});
+}

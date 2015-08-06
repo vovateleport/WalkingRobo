@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>walking-robo</title>
+    <link rel="stylesheet" href="app.{%= o.webpack.hash %}.css">
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">walking-robo</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="#moscow">moscow</a></li>
+                <li><a href="#azore">azore</a></li>
+            </ul>
+            <ul class="nav nav-sidebar">
+                <li><a href="#settings">Настройки</a></li>
+            </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            <a href="#">Запустить</a>
+            <div>Последний запуск</div>
+            <pre>
+osm2psql
+            </pre>
+        </div>
+    </div>
+</div>
+</body>
+<script src="bundle.{%= o.webpack.hash %}.js"></script>
+</html>
