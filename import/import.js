@@ -32,6 +32,8 @@ runGenerator(function*(){
 	yield execPromise(cmd.to_sql);
 });
 
+console.log('finish!');
+
 
 function execPromise(command){
 	return new Promise(function(ok,fail){
