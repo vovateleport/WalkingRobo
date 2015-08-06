@@ -15,9 +15,9 @@ runGenerator(function*(){
 		prepare();
 		ok();
 	});
-	yield execPromise(cmd.download);
-	yield execPromise(cmd.osmosis);
-	yield execPromise(cmd.to_sql);
+	yield execPromise(_cmd.download);
+	yield execPromise(_cmd.osmosis);
+	yield execPromise(_cmd.to_sql);
 	yield new Promise(function(ok){
 		writeResult();
 		ok();
@@ -43,9 +43,9 @@ function prepare() {
 	var styleFileFullPath = path.resolve(baseDir, c.stylesFile);
 
 	var t = c.tasks[0];
-	cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file}`;
-	cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=${t.bbox.top} left=${t.bbox.left} bottom=${t.bbox.bottom} right=${t.bbox.rigth} completeWays=yes --lp --write-pbf ${t.name}.osm.pbf`;
-	cmd.to_sql = `osm2pgsql -d ${t.name} ${t.name}.osm.pbf -P 5432 -U robosm --cache-strategy sparse -C 500 --style ${styleFileFullPath}`;
+	_cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file}`;
+	_cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=${t.bbox.top} left=${t.bbox.left} bottom=${t.bbox.bottom} right=${t.bbox.rigth} completeWays=yes --lp --write-pbf ${t.name}.osm.pbf`;
+	_cmd.to_sql = `osm2pgsql -d ${t.name} ${t.name}.osm.pbf -P 5432 -U robosm --cache-strategy sparse -C 500 --style ${styleFileFullPath}`;
 
 	sh.cd(baseDir);
 	sh.mkdir('-p', `build`);
