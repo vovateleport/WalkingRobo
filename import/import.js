@@ -52,14 +52,14 @@ function* _task(taskName){
 }
 
 function prepare(task) {
-	console.log(JSON.stringify(task));
+	console.log('Task', JSON.stringify(task));
 	_wr = {};
 	_wr.task = task;
-	_wr.result = {start:Date.now(), log:[]};
+	_wr.result = {result:null, start: new Date(), finish:null, durationMs:null,error:null, log:[]};
 	_wr.cmd = {};
 	_wr.pathOutput = path.resolve(c.baseDir,'build',task.name);
-	_wr.resultLog = path.resolve(_wr.pathOutput,'import.result');
-	_wr.resultStyles = path.resolve(_wr.pathOutput,'load.styles');
+	_wr.resultLog = path.resolve(_wr.pathOutput,'import-result.txt');
+	_wr.resultStyles = path.resolve(_wr.pathOutput,'load-styles.txt');
 
 	_wr.cmd.download = `wget -O ${task.name}_src.osm.pbf ${task.file}`;
 	_wr.cmd.osmosis = `osmosis -v --read-pbf ./${task.name}_src.osm.pbf --bounding-box top=${task.bbox.top} left=${task.bbox.left} bottom=${task.bbox.bottom} right=${task.bbox.rigth} completeWays=yes --lp --write-pbf ${task.name}.osm.pbf`;
@@ -68,14 +68,13 @@ function prepare(task) {
 	sh.cd(c.baseDir);
 	sh.mkdir('-p', _wr.pathOutput);
 	sh.cd(_wr.pathOutput);
-	console.log(1);
 
 	merger.merge(_wr.resultStyles);
 }
 
 function writeResult(err){
-	_wr.result.finish = Date.now();
-	_wr.result.duration = _wr.result.finish - _wr.result.start;
+	_wr.result.finish = new Date();
+	_wr.result.durationMs = _wr.result.finish - _wr.result.start;
 	_wr.result.result =  !err ? 'success':'fail';
 	if (err)
 		_wr.result.error = JSON.stringify(err);
@@ -93,8 +92,11 @@ function writeResult(err){
 function execPromise(command){
 	return new Promise(function(ok,fail){
 		sh.exec(command, function(code, output) {
-			_wr.result.log.push( {command: command, exitCode:code, output:output});
-			ok();
+			_wr.result.log.push( {command: command, exitCode:code, output:output.split(/\r\n|\r|\n/g)});
+			if (code!=0)
+				fail(output);
+			else
+				ok();
 		});
 	});
 }

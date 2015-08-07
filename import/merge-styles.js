@@ -62,7 +62,7 @@ module.exports.merge = function(fileOutput){
 };
 
 function _processUser(){
-	var file = path.resolve(cfg.baseDir,cfg.stylesFile2);
+	var file = path.resolve(cfg.baseDir,cfg.stylesFile);
 	let data= null;
 	try{
 		data= JSON.parse(fs.readFileSync(file, {encoding:'utf8'} ));
