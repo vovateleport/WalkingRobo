@@ -27,7 +27,7 @@ function work(){
 }
 
 //entry point
-function work2(){
+module.exports.merge = function(fileOutput){
 	var def = _process ('default');
 	var custom = _processUser();
 
@@ -58,9 +58,8 @@ function work2(){
 		rv.push((obj.skip?'#':'') + `${obj.osmType}\t${obj.tag}\t${obj.dataType}\t${obj.flags}\t#${obj.source}`);
 	});
 
-	let fileOutput = path.resolve(_getOutput(),'load.styles');
 	fs.writeFileSync(fileOutput, rv.join('\r\n'),'utf8');
-}
+};
 
 function _processUser(){
 	var file = path.resolve(cfg.baseDir,cfg.stylesFile2);
@@ -69,6 +68,7 @@ function _processUser(){
 		data= JSON.parse(fs.readFileSync(file, {encoding:'utf8'} ));
 	}
 	catch(err){
+		console.log(`No custom fields '${file}'`);
 		data = {};
 	}
 
@@ -134,5 +134,5 @@ function _getOutput(){
 		return path.resolve(args[0]);
 }
 
-work2();
+//work2();
 

@@ -1,77 +1,92 @@
 "use strict";
 
-var sh = require('shelljs');
-sh.config.fatal = true;
-var hjson = require('hjson');
+var _ = require('lodash');
+var sh = require('shelljs'); sh.config.fatal = true;
 var fs = require('fs');
 var path = require('path');
-var c = require("./testc");
+var c = require('./testc');
+var merger = require('./merge-styles');
 
-var _result = {start:Date.now(), log:[]};
-var _cmd = {};
-var _resultFile = '';
+var _wr = null;//context
 
-runGenerator(function*(){
+runGenerator(main);
+
+function*main(){
+	var args = process.argv.slice(2);
+	var taskName = args.length > 0 ? args[0] : null;
+
+	if (!task) {
+		c.tasks.forEach(function (t) {
+			yield _task(t.name);
+		});
+	}
+	else
+		yield _task(taskName);
+}
+
+function* _task(taskName){
+	var tf = _.find(c.tasks, function(t){
+			return t.name==taskName;
+		});
+	if (tf==null) {
+		console.log(`No task '${taskName}'`);
+		sh.exit(1);
+	}
+
 	yield new Promise(function(ok){
-		prepare();
-		console.log('Prepare OK');
+		prepare(tf);
+		console.log(`Task '${_tf.name}' prepared.`);
 		ok();
 	});
-	yield execPromise(_cmd.download);
-	yield execPromise(_cmd.osmosis);
-	yield execPromise(_cmd.to_sql);
+	yield execPromise(_wr.cmd.download);
+	yield execPromise(_wr.cmd.osmosis);
+	yield execPromise(_wr.cmd.to_sql);
 	yield new Promise(function(ok){
 		writeResult();
 		ok();
 	});
+}
 
-});
+function prepare(task) {
+	_wr.task = task;
+	_wr.result = {start:Date.now(), log:[]};
+	_wr.cmd = {};
+	_wr.pathOutput = path.resolve(c.baseDir,'build',task.name);
+	_wr.resultLog = path.resolve(_wr.pathOutput,'import.result');
+	_wr.resultStyles = path.resolve(_wr.pathOutput,'load.styles');
+
+	_wr.cmd.download = `wget -O ${task.name}_src.osm.pbf ${task.file}`;
+	_wr.cmd.osmosis = `osmosis -v --read-pbf ./${task.name}_src.osm.pbf --bounding-box top=${task.bbox.top} left=${task.bbox.left} bottom=${task.bbox.bottom} right=${task.bbox.rigth} completeWays=yes --lp --write-pbf ${task.name}.osm.pbf`;
+	_wr.cmd.to_sql = `osm2pgsql -d ${task.name} ${task.name}.osm.pbf -U robosm --cache-strategy sparse -C 500 --style ${_wr.resultStyles}`;
+
+	sh.cd(c.baseDir);
+	sh.mkdir('-p', _wr.pathOutput);
+	sh.cd(_wr.pathOutput);
+
+	merger.merge(_wr.resultStyles);
+}
 
 function writeResult(err){
-	console.log('Finishing');
-
-	_result.finish = Date.now();
-	_result.duration = _result.finish - _result.start;
-	_result.result =  !err ? 'success':'fail';
+	_wr.result.finish = Date.now();
+	_wr.result.duration = _wr.result.finish - _wr.result.start;
+	_wr.result.result =  !err ? 'success':'fail';
 	if (err)
-		_result.error = JSON.stringify(err);
+		_wr.result.error = JSON.stringify(err);
 
 	try {
-		fs.writeFileSync(_resultFile, JSON.stringify(_result), {encoding: 'utf8'});
+		fs.writeFileSync(_wr.resultLog, JSON.stringify(_wr.result,null,2), {encoding: 'utf8'});
 	}
 	catch(err0){
 		console.log('error',JSON.stringify(err0));
 	}
-	console.log('Finished! Result in ',_resultFile);
-}
-
-function prepare() {
-	var args = process.argv.slice(2);
-	var configPath = args.length > 0 ? args[0] : 'test.hjson';
-
-	var baseDir = c.baseDir || __dirname;
-	var styleFileFullPath = path.resolve(baseDir, c.stylesFile);
-
-	var t = c.tasks[0];
-	_resultFile = path.resolve(baseDir,'build',t.name,'import.result');
-
-	_cmd.download = `wget -O ${t.name}_src.osm.pbf ${t.file}`;
-	_cmd.osmosis = `osmosis -v --read-pbf ./${t.name}_src.osm.pbf --bounding-box top=${t.bbox.top} left=${t.bbox.left} bottom=${t.bbox.bottom} right=${t.bbox.rigth} completeWays=yes --lp --write-pbf ${t.name}.osm.pbf`;
-	_cmd.to_sql = `osm2pgsql -d ${t.name} ${t.name}.osm.pbf -P 5432 -U robosm --cache-strategy sparse -C 500 --style ${styleFileFullPath}`;
-
-	sh.cd(baseDir);
-	sh.mkdir('-p', `build`);
-	sh.cd('build');
-	sh.mkdir('-p', t.name);
-	sh.cd(t.name);
-
-	console.log('Commands:',JSON.stringify(_cmd,null,2));
+	console.log('Finished! See details in ', _wr.resultLog);
+	_wr = null;
 }
 
 function execPromise(command){
 	return new Promise(function(ok,fail){
 		sh.exec(command, function(code, output) {
-			_result.log.push( {command: command, exitCode:code, output:output});
+			_wr.result.log.push( {command: command, exitCode:code, output:output});
 			ok();
 		});
 	});
@@ -79,14 +94,11 @@ function execPromise(command){
 
 function runGenerator(g) {
 	var it = g(), ret;
-	// asynchronously iterate over generator
 	(function iterate(val){
 		ret = it.next( val );
 
 		if (!ret.done) {
-			// poor man's "is it a promise?" test
 			if ("then" in ret.value) {
-				// wait on the promise
 				ret.value
 					.then(iterate)
 					.catch(function(err){
@@ -94,9 +106,7 @@ function runGenerator(g) {
 						throw err;
 					});
 			}
-			// immediate value: just send right back in
 			else {
-				// avoid synchronous recursion
 				setTimeout( function(){
 					iterate( ret.value );
 				}, 0 );
