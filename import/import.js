@@ -13,13 +13,14 @@ function*main(){
 	var args = process.argv.slice(2);
 	var taskName = args.length > 0 ? args[0] : null;
 
-	if (!task) {
-		c.tasks.forEach(function (t) {
-			yield _task(t.name);
-		});
+	if (!taskName) {
+		for(var i=0;i<c.tasks.length;i++){
+			yield* _task(c.tasks[i].name);
+		}
 	}
-	else
-		yield _task(taskName);
+	else {
+		yield* _task(taskName);
+	}
 }
 
 function* _task(taskName){
@@ -31,9 +32,14 @@ function* _task(taskName){
 		sh.exit(1);
 	}
 
-	yield new Promise(function(ok){
-		prepare(tf);
-		console.log(`Task '${_tf.name}' prepared.`);
+	yield new Promise(function(ok,fail){
+		try {
+			prepare(tf);
+		}
+		catch(err){
+			return fail(err);
+		}
+		console.log(`Task '${tf.name}' prepared.`);
 		ok();
 	});
 	yield execPromise(_wr.cmd.download);
@@ -46,6 +52,8 @@ function* _task(taskName){
 }
 
 function prepare(task) {
+	console.log(JSON.stringify(task));
+	_wr = {};
 	_wr.task = task;
 	_wr.result = {start:Date.now(), log:[]};
 	_wr.cmd = {};
@@ -60,6 +68,7 @@ function prepare(task) {
 	sh.cd(c.baseDir);
 	sh.mkdir('-p', _wr.pathOutput);
 	sh.cd(_wr.pathOutput);
+	console.log(1);
 
 	merger.merge(_wr.resultStyles);
 }
@@ -77,7 +86,7 @@ function writeResult(err){
 	catch(err0){
 		console.log('error',JSON.stringify(err0));
 	}
-	console.log('Finished! See details in ', _wr.resultLog);
+	console.log(`Task '${_wr.task.name}' finished. See details in ${_wr.resultLog}`);
 	_wr = null;
 }
 
@@ -100,6 +109,7 @@ function runGenerator(g) {
 				ret.value
 					.then(iterate)
 					.catch(function(err){
+						console.log('runGenerator_err',err);
 						writeResult(err);
 						throw err;
 					});
