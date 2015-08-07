@@ -46,7 +46,7 @@ function* _task(taskName, step){
 		console.log(`Task '${tf.name}' prepared.`);
 		ok();
 	});
-	if (step && _wr.cmd.step) {
+	if (step && _wr.cmd[step]) {
 		yield execPromise(_wr.cmd[step]);
 	}
 	else {
