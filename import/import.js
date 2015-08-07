@@ -4,26 +4,30 @@ var fs = require('fs');
 var path = require('path');
 var c = require('./testc');
 var merger = require('./merge-styles');
+var minimist = require('minimist');
 
 var _wr = null;//context
 
 runGenerator(main);
 
 function*main(){
-	var args = process.argv.slice(2);
-	var taskName = args.length > 0 ? args[0] : null;
+	var args = minimist(process.argv.slice(2));
+	//console.dir(args);
+
+	var taskName = args.task|| null;
+	var step = args.step||null;
 
 	if (!taskName) {
 		for(var i=0;i<c.tasks.length;i++){
-			yield* _task(c.tasks[i].name);
+			yield* _task(c.tasks[i].name,step);
 		}
 	}
 	else {
-		yield* _task(taskName);
+		yield* _task(taskName,step);
 	}
 }
 
-function* _task(taskName){
+function* _task(taskName, step){
 	var tf = _.find(c.tasks, function(t){
 			return t.name==taskName;
 		});
@@ -42,9 +46,15 @@ function* _task(taskName){
 		console.log(`Task '${tf.name}' prepared.`);
 		ok();
 	});
-	yield execPromise(_wr.cmd.download);
-	yield execPromise(_wr.cmd.osmosis);
-	yield execPromise(_wr.cmd.to_sql);
+	if (step && _wr.cmd.step) {
+		yield execPromise(_wr.cmd[step]);
+	}
+	else {
+		yield execPromise(_wr.cmd.download);
+		yield execPromise(_wr.cmd.osmosis);
+		yield execPromise(_wr.cmd.sql);
+	}
+
 	yield new Promise(function(ok){
 		writeResult();
 		ok();
@@ -63,7 +73,7 @@ function prepare(task) {
 
 	_wr.cmd.download = `wget -O ${task.name}_src.osm.pbf ${task.file}`;
 	_wr.cmd.osmosis = `osmosis -v --read-pbf ./${task.name}_src.osm.pbf --bounding-box top=${task.bbox.top} left=${task.bbox.left} bottom=${task.bbox.bottom} right=${task.bbox.rigth} completeWays=yes --lp --write-pbf ${task.name}.osm.pbf`;
-	_wr.cmd.to_sql = `osm2pgsql -d ${task.name} ${task.name}.osm.pbf -U robosm --cache-strategy sparse -C 500 --style ${_wr.resultStyles}`;
+	_wr.cmd.sql = `osm2pgsql -d ${task.name} ${task.name}.osm.pbf -U robosm --cache-strategy sparse -C 500 --style ${_wr.resultStyles}`;
 
 	sh.cd(c.baseDir);
 	sh.mkdir('-p', _wr.pathOutput);
