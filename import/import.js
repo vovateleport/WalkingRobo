@@ -1,5 +1,3 @@
-"use strict";
-
 var _ = require('lodash');
 var sh = require('shelljs'); sh.config.fatal = true;
 var fs = require('fs');
